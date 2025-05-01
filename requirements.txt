@@ -1,3 +1,0 @@
-aiohttp
-spotipy
-python-telegram-bot[telegram,ext]~=13.15
