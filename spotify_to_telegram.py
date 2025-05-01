@@ -1,47 +1,44 @@
-import time
-import spotipy
+import os
+import asyncio
+from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from telegram import Bot
+from telegram.ext import Application
 
-# Укажи здесь свои данные:
-SPOTIFY_CLIENT_ID = '0a038fc36d8d4aa4922cb33991f0754a'
-SPOTIFY_CLIENT_SECRET = 'c01617b287f5430191fdeac8b83c6bbb'
-SPOTIFY_REDIRECT_URI = 'http://127.0.0.1:8888/callback'
-TELEGRAM_TOKEN = '8069908850:AAEehMGaCCEK1zAqvmrt-SD7oP8AkdyqJGk'
-TELEGRAM_CHAT_ID = '1248516794'  # об этом ниже
+# 🔑 Вставь сюда свои данные:
+SPOTIFY_CLIENT_ID = "0a038fc36d8d4aa4922cb33991f0754a"
+SPOTIFY_CLIENT_SECRET = "c71c80c2642045b585bc9b2777417472"
+SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8888/callback"
+TELEGRAM_TOKEN = "8069908850:AAEehMGaCCEK1zAqvmrt-SD7oP8AkdyqJGk"
+TELEGRAM_CHAT_ID = "1248516794"
 
-# Авторизация в Spotify
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+# 🎧 Авторизация Spotify
+sp_oauth = SpotifyOAuth(
     client_id=SPOTIFY_CLIENT_ID,
     client_secret=SPOTIFY_CLIENT_SECRET,
     redirect_uri=SPOTIFY_REDIRECT_URI,
-    scope="user-read-currently-playing"
-))
+    scope="user-read-playback-state"
+)
+sp = Spotify(auth_manager=sp_oauth)
 
-# Авторизация в Telegram
-bot = Bot(token=TELEGRAM_TOKEN)
+# 🔍 Получаем текущий трек
+current = sp.current_playback()
+print("Spotify ответ:", current)
 
-last_track = None
+# ✉️ Готовим сообщение
+if current and current.get('is_playing'):
+    track = current['item']
+    track_name = track['name']
+    artist_name = ', '.join([artist['name'] for artist in track['artists']])
+    message = f"🎵 Сейчас играет: {track_name} — {artist_name}"
+else:
+    message = "⏸ Сейчас ничего не играет"
 
-while True:
-    try:
-        current = sp.current_user_playing_track()
-        if current and current['is_playing']:
-            track = current['item']['name']
-            artist = current['item']['artists'][0]['name']
-            url = current['item']['external_urls']['spotify']
+# 📤 Асинхронная отправка в Telegram
+async def send_message():
+    bot = Bot(token=TELEGRAM_TOKEN)
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    print("✅ Сообщение отправлено!")
 
-            message = f"Сейчас играет: {track} — {artist}\n{url}"
-
-            if message != last_track:
-                bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-                last_track = message
-
-    except Exception as e:
-        print(f"Ошибка: {e}")
-
-    time.sleep(30)  # Проверка каждые 30 секунд
-    print("Бот запущен")
-print(f"TELEGRAM_CHAT_ID: {chat_id}")
-print(f"SPOTIFY_CURRENT_TRACK: {track_info}")  # или аналогичная переменная
-
+# Запускаем асинхронную задачу
+asyncio.run(send_message())
