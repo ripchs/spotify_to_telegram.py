@@ -6,7 +6,7 @@ from telegram import Bot
 # Укажи здесь свои данные:
 SPOTIFY_CLIENT_ID = '0a038fc36d8d4aa4922cb33991f0754a'
 SPOTIFY_CLIENT_SECRET = 'c01617b287f5430191fdeac8b83c6bbb'
-SPOTIFY_REDIRECT_URI = 'http://localhost:8888/callback'
+SPOTIFY_REDIRECT_URI = 'http://127.0.0.1:8888/callback'
 TELEGRAM_TOKEN = '8069908850:AAEehMGaCCEK1zAqvmrt-SD7oP8AkdyqJGk'
 TELEGRAM_CHAT_ID = '1248516794'  # об этом ниже
 
