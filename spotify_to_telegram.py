@@ -41,3 +41,7 @@ while True:
         print(f"Ошибка: {e}")
 
     time.sleep(30)  # Проверка каждые 30 секунд
+    print("Бот запущен")
+print(f"TELEGRAM_CHAT_ID: {chat_id}")
+print(f"SPOTIFY_CURRENT_TRACK: {track_info}")  # или аналогичная переменная
+
